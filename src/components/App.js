@@ -2,12 +2,16 @@ import { useEffect, useReducer } from "react";
 import Error from "./Error";
 import Header from "./Header";
 import FinishScreen from "./FinishScreen";
+import Footer from "./Footer";
 import Loader from "./Loader";
 import Main from "./Main";
 import NextButton from "./NextButton";
 import Progress from "./Progress";
 import Question from "./Question";
 import StartScreen from "./StartScreen";
+import Timer from "./Timer";
+
+const SECS_PER_QUESTION = 30;
 
 // Initial state values
 const initialState = {
@@ -17,6 +21,7 @@ const initialState = {
   answer: null, // Selected answer
   points: 0, // Current points
   highscore: 0, // Hi-score of the game
+  secondsRemaining: null, // The time limit for the game
 };
 
 // The reducer function
@@ -34,9 +39,13 @@ function reducer(state, action) {
     case "dataFailed":
       return { ...state, status: "error" };
 
-    // Active status, when Quiz has started
+    // Active status, when Quiz has started, the amount of seconds remaining is calculated
     case "start":
-      return { ...state, status: "active" };
+      return {
+        ...state,
+        status: "active",
+        secondsRemaining: state.questions.length * SECS_PER_QUESTION,
+      };
 
     // New answer has been submited
     case "newAnswer":
@@ -73,6 +82,15 @@ function reducer(state, action) {
         status: "ready",
         questions: state.questions,
       };
+
+    // Moving to the next question (increasing index by one, putting answer to null)
+    case "tick":
+      return {
+        ...state,
+        secondsRemaining: state.secondsRemaining - 1,
+        // When the seconds timer reaches 0, game ends
+        status: state.secondsRemaining === 0 ? "finished" : state.status,
+      };
     default:
       throw new Error("Action unknown");
   }
@@ -80,8 +98,10 @@ function reducer(state, action) {
 
 export default function App() {
   // Initializing reducer and destructuring the state
-  const [{ questions, status, index, answer, points, highscore }, dispatch] =
-    useReducer(reducer, initialState);
+  const [
+    { questions, status, index, answer, points, highscore, secondsRemaining },
+    dispatch,
+  ] = useReducer(reducer, initialState);
 
   // Getting the amount of questions
   const numQuestions = questions.length;
@@ -142,12 +162,15 @@ export default function App() {
               dispatch={dispatch}
               answer={answer}
             />
-            <NextButton
-              dispatch={dispatch}
-              answer={answer}
-              index={index}
-              numQuestions={numQuestions}
-            />
+            <Footer>
+              <Timer dispatch={dispatch} secondsRemaining={secondsRemaining} />
+              <NextButton
+                dispatch={dispatch}
+                answer={answer}
+                index={index}
+                numQuestions={numQuestions}
+              />
+            </Footer>
           </>
         )}
 
