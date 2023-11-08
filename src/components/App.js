@@ -4,6 +4,7 @@ import Header from "./Header";
 import Loader from "./Loader";
 import Main from "./Main";
 import NextButton from "./NextButton";
+import Progress from "./Progress";
 import Question from "./Question";
 import StartScreen from "./StartScreen";
 
@@ -21,7 +22,11 @@ function reducer(state, action) {
   switch (action.type) {
     // Ready status, when question packs were received
     case "dataReceived":
-      return { ...state, questions: action.payload, status: "ready" };
+      return {
+        ...state,
+        questions: action.payload,
+        status: "ready",
+      };
 
     // Error status, when fetching went wrong
     case "dataFailed":
@@ -56,13 +61,16 @@ function reducer(state, action) {
 
 export default function App() {
   // Initializing reducer and destructuring the state
-  const [{ questions, status, index, answer }, dispatch] = useReducer(
+  const [{ questions, status, index, answer, points }, dispatch] = useReducer(
     reducer,
     initialState
   );
 
   // Getting the amount of questions
   const numQuestions = questions.length;
+
+  // Getting the amount of all possible points
+  const maxPossiblePoints = questions.reduce((a, c) => (a += c.points), 0);
 
   // useEffect hook that runs on initial render and gets the questions pack
   useEffect(() => {
@@ -105,6 +113,13 @@ export default function App() {
         {/* Display question if the game has started */}
         {status === "active" && (
           <>
+            <Progress
+              index={index}
+              numQuestions={numQuestions}
+              points={points}
+              maxPossiblePoints={maxPossiblePoints}
+              answer={answer}
+            />
             <Question
               question={questions[index]}
               dispatch={dispatch}
