@@ -1,6 +1,7 @@
 import { useEffect, useReducer } from "react";
 import Error from "./Error";
 import Header from "./Header";
+import FinishScreen from "./FinishScreen";
 import Loader from "./Loader";
 import Main from "./Main";
 import NextButton from "./NextButton";
@@ -15,6 +16,7 @@ const initialState = {
   index: 0, // Question index
   answer: null, // Selected answer
   points: 0, // Current points
+  highscore: 0, // Hi-score of the game
 };
 
 // The reducer function
@@ -54,6 +56,23 @@ function reducer(state, action) {
     // Moving to the next question (increasing index by one, putting answer to null)
     case "nextQuestion":
       return { ...state, index: state.index + 1, answer: null };
+
+    // Finish screen
+    case "finish":
+      return {
+        ...state,
+        status: "finished",
+        highscore:
+          state.points > state.highscore ? state.points : state.highscore,
+      };
+
+    // Restart quiz
+    case "restart":
+      return {
+        ...initialState,
+        status: "ready",
+        questions: state.questions,
+      };
     default:
       throw new Error("Action unknown");
   }
@@ -61,10 +80,8 @@ function reducer(state, action) {
 
 export default function App() {
   // Initializing reducer and destructuring the state
-  const [{ questions, status, index, answer, points }, dispatch] = useReducer(
-    reducer,
-    initialState
-  );
+  const [{ questions, status, index, answer, points, highscore }, dispatch] =
+    useReducer(reducer, initialState);
 
   // Getting the amount of questions
   const numQuestions = questions.length;
@@ -125,8 +142,23 @@ export default function App() {
               dispatch={dispatch}
               answer={answer}
             />
-            <NextButton dispatch={dispatch} answer={answer} />
+            <NextButton
+              dispatch={dispatch}
+              answer={answer}
+              index={index}
+              numQuestions={numQuestions}
+            />
           </>
+        )}
+
+        {/* Start screen if questions were loaded */}
+        {status === "finished" && (
+          <FinishScreen
+            points={points}
+            maxPossiblePoints={maxPossiblePoints}
+            highscore={highscore}
+            dispatch={dispatch}
+          />
         )}
       </Main>
     </div>
