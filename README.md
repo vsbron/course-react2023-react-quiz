@@ -10,7 +10,3 @@ React SPA that lets the player to take a small React quiz
 
 - Questions are fetched from fake API using json-server;
 - useReducer hook is used to store and update the state;
-
-## Live version
-
-https://vsbron-course-react2023-react-quiz.netlify.app

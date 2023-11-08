@@ -3,6 +3,7 @@ import Error from "./Error";
 import Header from "./Header";
 import Loader from "./Loader";
 import Main from "./Main";
+import NextButton from "./NextButton";
 import Question from "./Question";
 import StartScreen from "./StartScreen";
 
@@ -21,9 +22,11 @@ function reducer(state, action) {
     // Ready status, when question packs were received
     case "dataReceived":
       return { ...state, questions: action.payload, status: "ready" };
+
     // Error status, when fetching went wrong
     case "dataFailed":
       return { ...state, status: "error" };
+
     // Active status, when Quiz has started
     case "start":
       return { ...state, status: "active" };
@@ -42,6 +45,10 @@ function reducer(state, action) {
             ? state.points + question.points
             : state.points,
       };
+
+    // Moving to the next question (increasing index by one, putting answer to null)
+    case "nextQuestion":
+      return { ...state, index: state.index + 1, answer: null };
     default:
       throw new Error("Action unknown");
   }
@@ -97,11 +104,14 @@ export default function App() {
 
         {/* Display question if the game has started */}
         {status === "active" && (
-          <Question
-            question={questions[index]}
-            dispatch={dispatch}
-            answer={answer}
-          />
+          <>
+            <Question
+              question={questions[index]}
+              dispatch={dispatch}
+              answer={answer}
+            />
+            <NextButton dispatch={dispatch} answer={answer} />
+          </>
         )}
       </Main>
     </div>
