@@ -1,4 +1,12 @@
-function Options({ question, dispatch, answer }) {
+import { useQuiz } from "../context/QuizContext";
+
+function Options() {
+  // Getting the state from Context API
+  const { questions, index, dispatch, answer } = useQuiz();
+
+  // Getting the question for this step
+  const question = questions[index];
+
   // Boolean variable that indicates whether the answer was given by player
   const hasAnswered = answer !== null;
 

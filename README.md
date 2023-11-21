@@ -15,3 +15,4 @@ React SPA that lets the player to take a small React quiz.
 - useReducer hook is used to store and update the state;
 - Initially the number of seconds is calculated based on number of questions;
 - Seconds are reduced via useInterval function, game is finished when seconds reach zero;
+- State is managed by Context API;
